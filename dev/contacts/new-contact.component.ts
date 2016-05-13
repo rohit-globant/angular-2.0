@@ -7,11 +7,12 @@ import {Contact} from './contact';
 
 @Component({
   template:`
-  <form #myForm="ngForm">
+  <form #myForm="ngForm" (ngSubmit)="onSubmit()">
     <div>
         <label for="first-name">First Name:</label>
         <input type='text' id='first-name'
             ngControl="firstName"
+            [(ngModel)] = "newContact.firstName"
             required="required"
         />
     </div>
@@ -19,6 +20,7 @@ import {Contact} from './contact';
         <label for="last-name">Last Name:</label>
         <input type='text' id='last-name'
         ngControl="lastName"
+          [(ngModel)] = "newContact.lastName"
         required="required"
         />
     </div>
@@ -26,6 +28,7 @@ import {Contact} from './contact';
         <label for="phone">Phone:</label>
         <input type='text' id='phone'
         ngControl="phone"
+          [(ngModel)] = "newContact.phone"
         required="required"
         />
     </div>
@@ -33,10 +36,11 @@ import {Contact} from './contact';
         <label for="email">Email:</label>
         <input type='text' id='email'
         ngControl="email"
+          [(ngModel)] = "newContact.email"
         required="required"
         />
     </div>
-    <button type="submit">Create Contact</button>
+    <button type="submit" [disabled] = "!myForm.form.valid">Create Contact</button>
   </form>
   `,
   styles:[`
@@ -48,6 +52,10 @@ import {Contact} from './contact';
       input{
         width:250px;
       }
+
+      .ng-invalid{
+        border: 1px solid red;
+      }
     `],
     providers:[ContactService]
 })
@@ -55,17 +63,18 @@ import {Contact} from './contact';
 
 export class NewContactComponent implements OnInit {
 
-    public passed_lastName ="";
+
+    newContact: Contact;
     constructor(private _contactService: ContactService, private _router:Router, private _routeParams:RouteParams){
 
     }
 
     ngOnInit():any{
-       this.passed_lastName = this._routeParams.get('lastName');
+       this.newContact = {firstName:'', lastName:this._routeParams.get('lastName'), phone:'',email:'' };
     }
-    onAddContact(firstName,lastName,phone,email){
-        let contact:Contact = {firstName:firstName, lastName:lastName, phone:phone,email:email};
-        this._contactService.insertContact(contact);
+
+    onSubmit(){
+        this._contactService.insertContact(this.newContact);
         this._router.navigate(['Contacts']);
     }
 }
